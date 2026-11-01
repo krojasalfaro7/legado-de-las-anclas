@@ -35,6 +35,7 @@ export const POSE_NAMES: Record<Pose, { name: string; code: string }> = {
   hurt: { name: 'daño', code: 'DA' },
   fly: { name: 'vuelo 1', code: 'V1' },
   fly2: { name: 'vuelo 2', code: 'V2' },
+  cheer: { name: 'recoger objeto', code: 'OB' },
 };
 
 export interface SheetReport {

@@ -7,13 +7,14 @@ código. Si la hoja falta o no es válida, el juego usa la generada.
 
 | Clase      | Quién                              | Frame | Hoja completa |
 | ---------- | ---------------------------------- | ----- | ------------- |
-| `humanoid` | personajes, NPCs, enemigos humanos | 24×32 | 336×128       |
-| `large`    | gólems y criaturas grandes         | 48×42 | 672×168       |
-| `heavy`    | humanos grandes (brutos)           | 36×48 | 504×192       |
-| `giant`    | colosos (jefes gólem a 3×)         | 72×63 | 1008×252      |
+| `humanoid` | personajes, NPCs, enemigos humanos | 24×32 | 360×128       |
+| `large`    | gólems y criaturas grandes         | 48×42 | 720×168       |
+| `heavy`    | humanos grandes (brutos)           | 36×48 | 540×192       |
+| `giant`    | colosos (jefes gólem a 3×)         | 72×63 | 1080×252      |
 
-- **Columnas (14 poses)**, de izquierda a derecha: reposo 1, reposo 2, paso 1-4, golpe 1-3
-  (puñetazo, cruzado, patada), ki, bloqueo, daño, vuelo 1, vuelo 2.
+- **Columnas (15 poses)**, de izquierda a derecha: reposo 1, reposo 2, paso 1-4, golpe 1-3
+  (puñetazo, cruzado, patada), ki, bloqueo, daño, vuelo 1, vuelo 2 y "¡lo tengo!" (brazos
+  arriba sosteniendo un objeto sobre la cabeza).
 - **Filas (4 direcciones)**, de arriba abajo: abajo, izquierda, derecha, arriba. La derecha
   puede ser el espejo de la izquierda, pero tiene que estar dibujada en la hoja.
 - **Pivote**: abajo al centro. En reposo, pasos 2 y 4 y bloqueo, la fila más baja con píxeles es

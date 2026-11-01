@@ -231,7 +231,7 @@ Original top-down action-RPG (Phaser 4 + TypeScript strict + Vite). Personal, no
 - Flying disables melee/block, ki regen and interactions (to avoid sniping from over water).
 
 - Visual pass (phase 9): sprites and tiles share one finish — flat-color paint, then
-  `finishGrid` (top-left light, colored outline, 15-bit snap). 14 poses per facing; Actor plays
+  `finishGrid` (top-left light, colored outline, 15-bit snap). 15 poses per facing (the 15th, `cheer`, is the item-get pose); Actor plays
   `<sheet>-idle|walk|fly-<facing>` loops. The transformation is shown with glow lines, eyes and a
   light scarf plus a soft halo with rising motes (deliberately not a hair-color/flame-aura look).
 - Tile names were re-themed (wood/stone Watchtower, meadow, cloud sea, cliff, anchor); gids are
@@ -314,8 +314,8 @@ Original top-down action-RPG (Phaser 4 + TypeScript strict + Vite). Personal, no
 - SPD (save v6): fourth stat. +1% move speed per point (max ×1.6) and −0.5% melee recovery per
   point (min ×0.7). Points per level 3 → 4; the migration gives old saves SPD 1 plus one free
   point per level already gained.
-- Item get: chests and NPC gifts play `Player.showOff` (faces the camera, arms up using the
-  `hurt` down frame, the item icon held over the head at 2x, ~0.9 s without control).
+- Item get: chests and NPC gifts play `Player.showOff` (faces the camera in the `cheer` pose,
+  both hands up, the item icon held over the head at 2x, ~0.9 s without control).
 - Equipment flavor effects: `EquipEffect.damageMult` and `kiRegenMult` (shop items: reed wraps
   +10% damage, tide amulet ×1.5 ki regen, gale sandals ×1.12 speed).
 - Finishing the game (2026-10-31, user: full autonomy; Buu's Fury decides hard calls): the

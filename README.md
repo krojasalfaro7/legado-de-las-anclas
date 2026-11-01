@@ -230,8 +230,8 @@ Las partidas anteriores a la versión 2 (el prototipo) ya no se pueden cargar.
 
 Todo el arte se genera por código con el mismo acabado: contorno de color, luz desde arriba a la
 izquierda y paleta de 15 bits (`finishGrid` en `src/ui/humanoid.ts`, `scripts/gen-tileset.ts`).
-Los personajes tienen 14 poses por dirección (reposo x2, caminar x4, combo de 3 golpes, ki,
-bloqueo, daño y vuelo x2) y rasgos opcionales en su `look`: `scarf`, `wing`, `glow`, `bigEyes`.
+Los personajes tienen 15 poses por dirección (reposo x2, caminar x4, combo de 3 golpes, ki,
+bloqueo, daño, vuelo x2 y recoger objeto) y rasgos opcionales en su `look`: `scarf`, `wing`, `glow`, `bigEyes`.
 
 Para usar hojas dibujadas a mano, sigue `docs/SPRITES.md`: plantillas con
 `npm run sprites:templates`, hojas en `public/assets/sprites/<clave>.png` y validación con

@@ -19,7 +19,9 @@ export type Pose =
   | 'block'
   | 'hurt'
   | 'fly'
-  | 'fly2';
+  | 'fly2'
+  /** Item get: both arms up, holding something over the head. */
+  | 'cheer';
 
 /** Sheet rows, top to bottom. */
 export const FACINGS: readonly Facing[] = ['down', 'left', 'right', 'up'];
@@ -39,6 +41,7 @@ export const POSES: readonly Pose[] = [
   'hurt',
   'fly',
   'fly2',
+  'cheer',
 ];
 
 /** `heavy`: big humanoids, the humanoid art at 1.5x (reference: heavies ~1.5 characters tall). */

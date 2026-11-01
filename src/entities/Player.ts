@@ -231,7 +231,7 @@ export class Player extends Actor {
     this.controllable = false;
     this.setVelocity(0, 0);
     this.facing = 'down';
-    this.holdPose('hurt', ms);
+    this.holdPose('cheer', ms);
     const icon = this.scene.add
       .image(Math.round(this.x), Math.round(this.y - this.height / 2 + 2), texture)
       .setDepth(this.depth + 1)

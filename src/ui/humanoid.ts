@@ -563,6 +563,17 @@ function frontRig(pose: Pose, back: boolean): Rig {
         leg1: [r.leg1[0], [8, 24], [8, 27]],
         leg2: [r.leg2[0], [15, 24], [15, 27]],
       };
+    case 'cheer':
+      // Both arms up in a V beside the head, hands at its crown (the item is drawn above).
+      return {
+        ...r,
+        arm1: [r.arm1[0], [4, 10], [6, 4]],
+        arm2: [r.arm2[0], [19, 10], [17, 4]],
+        leg1: [r.leg1[0], [8, 24], [8, 27]],
+        leg2: [r.leg2[0], [15, 24], [15, 27]],
+        hand1: 'open',
+        hand2: 'open',
+      };
     case 'fly':
     case 'fly2':
       // Legs together, toes pointed down, arms a little out.
@@ -685,6 +696,14 @@ function sideRig(pose: Pose): Rig {
         arm2: [r.arm2[0], [15, 14], [17, 13]],
         leg1: [r.leg1[0], [8, 24], [6, 26]],
         leg2: [r.leg2[0], [13, 24], [13, 27]],
+      };
+    case 'cheer':
+      return {
+        ...r,
+        arm1: [r.arm1[0], [9, 11], [9, 6]],
+        arm2: [r.arm2[0], [12, 11], [11, 6]],
+        hand1: 'open',
+        hand2: 'open',
       };
     case 'fly':
     case 'fly2': {

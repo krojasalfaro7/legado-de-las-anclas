@@ -38,7 +38,7 @@ describe('sprite sheet validator', () => {
   it('rejects the wrong size and says the right one', () => {
     const { errors } = validateSheet(new RgbaImage(16 * 14, 24 * 4), FRAME);
     expect(errors).toHaveLength(1);
-    expect(errors[0]).toContain('336×128');
+    expect(errors[0]).toContain('360×128');
   });
 
   it('rejects semi-transparent pixels and colors outside 15 bits', () => {
