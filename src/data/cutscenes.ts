@@ -1119,6 +1119,7 @@ export const CUTSCENES: CutsceneDef[] = [
     trigger: { on: 'enter' },
     when: { flag: 'gameCleared' },
     steps: [
+      { do: 'music', id: 'ending' },
       { do: 'spawn', id: 'tavi', actor: { character: 'tavi' }, at: [14, 15], facing: 'up' },
       { do: 'spawn', id: 'iole', actor: { character: 'iole' }, at: [14, 12], facing: 'down' },
       { do: 'spawn', id: 'okun', actor: { character: 'okun' }, at: [12, 15], facing: 'up' },

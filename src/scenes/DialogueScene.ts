@@ -27,6 +27,7 @@ const PORTRAIT = { w: 24, h: 17, scale: 2, pad: 3 };
 const TEXT_X = 14;
 const TEXT_X_PORTRAIT = 14 + PORTRAIT.w * PORTRAIT.scale + PORTRAIT.pad * 2 + 6;
 const CHARS_PER_SEC = 55;
+const BLIP_EVERY = 3;
 
 /** Text box overlay. The caller pauses the world; this scene resumes it on close. */
 export class DialogueScene extends Phaser.Scene {
@@ -136,7 +137,12 @@ export class DialogueScene extends Phaser.Scene {
         line.text.length,
         this.shownChars + (CHARS_PER_SEC * delta) / 1000,
       );
+      const before = this.body.text.length;
       this.body.setText(line.text.slice(0, Math.floor(this.shownChars)));
+      // A soft blip every few letters, like the handheld text boxes.
+      if (Math.floor(this.shownChars / BLIP_EVERY) > Math.floor(before / BLIP_EVERY)) {
+        audio.play('blip');
+      }
     }
     const isLast = this.lineIndex === this.req.lines.length - 1;
     // Questions show their options as soon as the prompt line is fully typed.

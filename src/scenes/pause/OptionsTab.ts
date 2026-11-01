@@ -12,7 +12,8 @@ const VOLUME_STEP = 0.1;
 export class OptionsTab implements TabView {
   private readonly list: MenuList;
   private readonly hint: Phaser.GameObjects.BitmapText;
-  private editing = false;
+  /** The volume row being adjusted with left/right, if any. */
+  private editing: 'volume' | 'music' | null = null;
 
   constructor(scene: Phaser.Scene, area: Phaser.Geom.Rectangle) {
     this.list = new MenuList(scene, area.x + 4, area.y + 2, area.width - 12, 14);
@@ -23,14 +24,15 @@ export class OptionsTab implements TabView {
   }
 
   private refresh(): void {
-    const bars = Math.round(options.volume * 10);
-    const bar = `${'|'.repeat(bars)}${'.'.repeat(10 - bars)} ${bars * 10}%`;
+    const row = (key: 'volume' | 'music', label: string) => {
+      const bars = Math.round(options[key] * 10);
+      const bar = `${'|'.repeat(bars)}${'.'.repeat(10 - bars)} ${bars * 10}%`;
+      const on = this.editing === key;
+      return { label, value: on ? `< ${bar} >` : bar, color: on ? 0xffd34a : undefined };
+    };
     this.list.setItems([
-      {
-        label: t('options.volume'),
-        value: this.editing ? `< ${bar} >` : bar,
-        color: this.editing ? 0xffd34a : undefined,
-      },
+      row('volume', t('options.volume')),
+      row('music', t('options.music')),
       { label: t('options.showControls'), value: options.showControls ? t('ui.yes') : t('ui.no') },
     ]);
     this.hint.setText(t(this.editing ? 'options.hintEditing' : 'options.hint'));
@@ -41,22 +43,23 @@ export class OptionsTab implements TabView {
    * (D on its row) do left/right adjust it, and D/S finish the edit.
    */
   capturesHorizontal(): boolean {
-    return this.editing;
+    return this.editing !== null;
   }
 
   capturesCancel(): boolean {
-    return this.editing;
+    return this.editing !== null;
   }
 
   update(): void {
     if (this.editing) {
       const dir = input.menuPressed('right') ? 1 : input.menuPressed('left') ? -1 : 0;
       if (dir !== 0) {
-        options.update({ volume: options.volume + dir * VOLUME_STEP });
+        const key = this.editing;
+        options.update({ [key]: options[key] + dir * VOLUME_STEP });
         audio.play('menuMove');
         this.refresh();
       } else if (input.justPressed('confirm') || input.justPressed('cancel')) {
-        this.editing = false;
+        this.editing = null;
         audio.play('menuMove');
         this.refresh();
       }
@@ -64,7 +67,8 @@ export class OptionsTab implements TabView {
     }
     this.list.update();
     if (!input.justPressed('confirm')) return;
-    if (this.list.index === 0) this.editing = true;
+    if (this.list.index === 0) this.editing = 'volume';
+    else if (this.list.index === 1) this.editing = 'music';
     else options.update({ showControls: !options.showControls });
     audio.play('menuMove');
     this.refresh();

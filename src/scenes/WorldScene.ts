@@ -43,6 +43,10 @@ export const WORLD_EVENTS = {
 } as const;
 
 type DamageKind = 'enemy' | 'player' | 'blocked' | 'exp' | 'money';
+
+/** The last fights get their own theme. */
+const FINAL_BOSSES = new Set(['veskFinal', 'fondoHeart', 'fondoEcho']);
+
 const DAMAGE_COLORS: Record<DamageKind, number> = {
   enemy: 0xffffff,
   player: 0xff6060,
@@ -343,6 +347,7 @@ export class WorldScene extends Phaser.Scene implements CombatHost {
   changeZone(zoneId: string, spawn: string, byFlight: boolean): void {
     if (this.changingZone || !ZONES[zoneId]) return;
     this.changingZone = true;
+    if (!byFlight) audio.play('warp');
     this.player.controllable = false;
     this.player.setVelocity(0, 0);
     if (byFlight) {
@@ -456,6 +461,7 @@ export class WorldScene extends Phaser.Scene implements CombatHost {
 
   onBossUltimate(enemy: Enemy, windupMs: number): void {
     this.toast(t('hud.bossUltimate', { name: t(enemy.displayNameKey) }));
+    audio.play('ultimate');
     this.cameras.main.shake(windupMs, 0.0015);
     this.time.delayedCall(windupMs, () => this.cameras.main.flash(120, 220, 250, 255));
   }
@@ -530,6 +536,8 @@ export class WorldScene extends Phaser.Scene implements CombatHost {
     session.state.defeatedBosses = [...session.state.defeatedBosses, enemy.spawn.spawnId];
     this.activeBoss = null;
     this.events.emit(WORLD_EVENTS.bossChanged, null);
+    audio.play('explode');
+    audio.sting('victory', ZONES[this.zoneId]?.music ?? null);
     const spawn = enemy.spawn.spawnId.slice(this.zoneId.length + 1);
     this.time.delayedCall(600, () => this.cutscenes.tryPlay({ on: 'bossDefeated', spawn }));
   }
@@ -578,6 +586,7 @@ export class WorldScene extends Phaser.Scene implements CombatHost {
   /** Gives the boss its current phase's look and refreshes the boss bar's name. */
   transformBoss(enemy: Enemy): void {
     enemy.applyPhaseLook();
+    audio.play('roar');
     if (enemy === this.activeBoss) this.events.emit(WORLD_EVENTS.bossChanged, enemy);
   }
 
@@ -744,6 +753,7 @@ export class WorldScene extends Phaser.Scene implements CombatHost {
     if (d > boss.def.ai.aggroRange) return;
     this.activeBoss = boss;
     this.events.emit(WORLD_EVENTS.bossChanged, boss);
+    audio.playMusic(FINAL_BOSSES.has(boss.def.id) ? 'finale' : 'boss');
     if (!session.state.flags[`bossCard.${boss.def.id}`]) this.pendingBossCard = boss;
     const spawn = boss.spawn.spawnId.slice(this.zoneId.length + 1);
     this.cutscenes.tryPlay({ on: 'boss', spawn });

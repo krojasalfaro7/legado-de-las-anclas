@@ -106,6 +106,7 @@ export class WorldMapScene extends Phaser.Scene {
 
   create(data: WorldMapData): void {
     this.from = data.from;
+    audio.playMusic('flight');
     this.landmarks = visibleLandmarks(session.state.flags);
     this.leaving = false;
     this.alt = 0;

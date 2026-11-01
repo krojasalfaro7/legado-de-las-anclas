@@ -6,10 +6,12 @@ const OPTIONS_KEY = 'anclas.options';
 
 export interface Options {
   volume: number;
+  /** Soundtrack volume, separate from the effects. */
+  music: number;
   showControls: boolean;
 }
 
-const DEFAULT_OPTIONS: Options = { volume: 0.6, showControls: true };
+const DEFAULT_OPTIONS: Options = { volume: 0.6, music: 0.7, showControls: true };
 
 function storage(): Storage | null {
   try {
@@ -37,14 +39,16 @@ export function hasSave(): boolean {
 }
 
 /**
- * Fills missing fields and clamps the volume to 0..1 in tenths. An out-of-range volume once
+ * Fills missing fields and clamps the volumes to 0..1 in tenths. An out-of-range volume once
  * got persisted and broke the options tab on every open, so stored values are repaired too.
  */
 export function normalizeOptions(raw: Partial<Options>): Options {
   const o = { ...DEFAULT_OPTIONS, ...raw };
-  const volume = Number.isFinite(o.volume) ? o.volume : DEFAULT_OPTIONS.volume;
+  const level = (v: number, fallback: number) =>
+    Math.round(Math.max(0, Math.min(1, Number.isFinite(v) ? v : fallback)) * 10) / 10;
   return {
-    volume: Math.round(Math.max(0, Math.min(1, volume)) * 10) / 10,
+    volume: level(o.volume, DEFAULT_OPTIONS.volume),
+    music: level(o.music, DEFAULT_OPTIONS.music),
     showControls: o.showControls !== false,
   };
 }

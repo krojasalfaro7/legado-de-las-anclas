@@ -350,6 +350,7 @@ export class Player extends Actor {
   /** Every swing re-reads the input, so the player can turn between hits. */
   private beginSwing(step: number): void {
     const m = this.style;
+    audio.play('swing');
     const base = baseAim(this.moveInput(), facingVector(this.facing));
     const target = pickTarget({ x: this.footX, y: this.footY }, base, this.aimTargets(), {
       coneDeg: m.assistConeDeg,

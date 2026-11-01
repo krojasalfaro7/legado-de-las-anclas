@@ -386,9 +386,12 @@ export class ZoneContent {
           const r = buyItem(session.state, item.id);
           if (r.result === 'ok') {
             session.state = r.state;
-            audio.play('pickup');
+            audio.play('buy');
             this.world.toast(t('shop.bought', { name: t(item.nameKey) }));
-          } else this.world.toast(t('shop.tooPoor'));
+          } else {
+            audio.play('denied');
+            this.world.toast(t('shop.tooPoor'));
+          }
         }
         this.world.time.delayedCall(50, () => this.openShop(npc, stock));
       },

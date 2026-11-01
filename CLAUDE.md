@@ -201,7 +201,16 @@ Original top-down action-RPG (Phaser 4 + TypeScript strict + Vite). Personal, no
 - `tests/content.test.ts` cross-checks maps ↔ data ↔ strings (every enemyId/npcId/itemId exists,
   the slice has its 3 collectibles/gate/boss, a field sweep reaches level 5).
 - Audio: every sound goes through `services/audio.ts` hooks (`SfxId`). If a file is registered in
-  `data/audio.ts` it plays; otherwise a tiny WebAudio synth stands in. No audio files ship.
+  `data/audio.ts` it plays; otherwise the synth in `audio/sfx.ts`. No audio files ship.
+- Soundtrack (2026-11-01, user: "compone la música"): original chiptune written as text in
+  `audio/tracks.ts` (bars = chord + melody tokens; bass/arp/drum styles from `audio/theory.ts`,
+  compiled by `audio/song.ts`), played by `audio/music.ts` (lookahead WebAudio scheduler, GBA-like
+  pulse/triangle/noise voices, per-track echo and low-pass, crossfades). Zones pick a track with
+  `ZoneDef.music`; boss aggro switches to `boss` (`finale` for Vesk Final, El Fondo and the Echo);
+  a boss defeat plays the `victory` stinger and returns to the zone track; game over stings
+  `gameOver`; the epilogue uses a cutscene `music` step and `credits` plays its own track. Music
+  has its own volume (`Options.music`) on a bus at 0.55 under the effects; a limiter on master;
+  the context suspends while the page is hidden. Dev builds expose `window.__audio`.
 - Hit-stop pauses Arcade physics and resumes with `window.setTimeout` (real time), because scene
   timers would also be affected by the pause.
 - Options (volume, show controls hint) persist separately from the save (`anclas.options`),

@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from '../config/constants';
 import { t } from '../i18n';
+import { audio } from '../services/audio';
 import { input } from '../services/input';
 import { session } from '../services/session';
 import { loadGame } from '../services/storage';
@@ -22,6 +23,7 @@ export class GameOverScene extends Phaser.Scene {
 
   create(data: { zone: string }): void {
     this.zone = data.zone;
+    audio.sting('gameOver', null);
     this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x200000, 0.7).setOrigin(0);
     this.add
       .bitmapText(GAME_WIDTH / 2, 84, FONT_SHADOW, t('gameover.title'))

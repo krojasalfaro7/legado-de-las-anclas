@@ -22,7 +22,8 @@ arriba.
   como "enorme", pero es un bloque bastante simple; si quieres un diseño propio de jefe gigante,
   es candidato a redibujar.
 
-- **Música**: el juego no tiene pistas (`audio.playMusic` está preparado, pero no hay archivos).
-  Hace falta decidir si se componen o se licencian.
+- **Música (hecho, 2026-11-01)**: banda sonora original compuesta y sintetizada en el juego
+  (`src/audio/tracks.ts`), más todos los efectos rehechos. Si alguna pieza no te convence, dime
+  cuál y la reescribo: cada una es texto corto y fácil de cambiar.
 - **Pose de recoger objeto**: reutiliza el frame de "daño" mirando hacia abajo, que tiene los
   brazos alzados. Si quieres una pose propia, hay que añadir una columna a las hojas de sprites.

@@ -9,6 +9,10 @@ class OptionsService {
     return this.current.volume;
   }
 
+  get music(): number {
+    return this.current.music;
+  }
+
   get showControls(): boolean {
     return this.current.showControls;
   }
@@ -16,6 +20,7 @@ class OptionsService {
   update(patch: Partial<Options>): void {
     this.current = normalizeOptions({ ...this.current, ...patch });
     audio.setVolume(this.current.volume);
+    audio.setMusicVolume(this.current.music);
     saveOptions(this.current);
   }
 }

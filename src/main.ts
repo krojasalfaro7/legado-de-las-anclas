@@ -69,7 +69,7 @@ window.addEventListener('keydown', (e) => {
 
 if (import.meta.env.DEV) {
   // Handy for console debugging and automated smoke tests.
-  Object.assign(window, { __game: game, __session: session });
+  Object.assign(window, { __game: game, __session: session, __audio: audio });
 }
 
 if (import.meta.env.DEV) {

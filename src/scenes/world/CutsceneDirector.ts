@@ -179,6 +179,9 @@ export class CutsceneDirector {
       case 'sfx':
         if (isSfx(step.id)) audio.play(step.id);
         return Promise.resolve();
+      case 'music':
+        audio.playMusic(step.id);
+        return Promise.resolve();
       case 'transform': {
         const a = this.actor(step.who);
         if (a instanceof Enemy) this.world.transformBoss(a);
@@ -371,6 +374,7 @@ export class CutsceneDirector {
   /** Scrolls the credits up over black, then fades back. */
   private credits(text: string): Promise<void> {
     const w = this.world;
+    audio.playMusic('credits');
     const depth = 410_000;
     const black = w.add
       .rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x000000)

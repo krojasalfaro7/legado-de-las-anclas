@@ -51,6 +51,8 @@ export type CutStep =
   /** Shown once the cutscene ends (the HUD is hidden while it runs). */
   | { do: 'toast'; text: string }
   | { do: 'sfx'; id: string }
+  /** Changes the soundtrack (`null`: silence) until the zone loads again. */
+  | { do: 'music'; id: string | null }
   /** A boss takes its current phase's transformed look (see BossPhase.look). */
   | { do: 'transform'; who: string }
   /**

@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from '../config/constants';
-import { MUSIC_FILES, SFX_FILES } from '../data/audio';
+import { SFX_FILES } from '../data/audio';
 import { CHARACTERS } from '../data/characters';
 import { ZONES } from '../data/zones';
 import { session } from '../services/session';
@@ -29,8 +29,6 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image('tiles', 'assets/tilesets/placeholder.png');
     for (const [id, file] of Object.entries(SFX_FILES))
       this.load.audio(`sfx-${id}`, `assets/audio/${file}`);
-    for (const [key, file] of Object.entries(MUSIC_FILES))
-      this.load.audio(`music-${key}`, `assets/audio/${file}`);
     // Hand-drawn sheets listed by `npm run sprites:check`. A missing manifest or a sheet that
     // fails to load just leaves the generated sheet in place.
     this.load.json('sprite-manifest', SPRITE_MANIFEST);

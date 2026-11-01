@@ -23,6 +23,7 @@ export class TitleScene extends Phaser.Scene {
   }
 
   create(): void {
+    audio.playMusic('title');
     this.drawSky();
     this.clouds = [];
     for (let i = 0; i < 5; i++) this.addCloud(Math.random() * GAME_WIDTH, 20 + i * 18, i);

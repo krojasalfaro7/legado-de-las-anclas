@@ -131,6 +131,7 @@ src/
   services/          singletons del navegador: input, sesión, guardado (localStorage), audio, opciones
   scenes/            Boot, Preload, Title, World, UI (HUD), Pause (+ pestañas), Dialogue, Lens, GameOver
   ui/                fuente pixel, sprites procedurales, barras y menús
+  audio/             banda sonora y efectos sintetizados (teoría, pistas, reproductor)
   i18n/es.ts         TODOS los textos del juego
 scripts/             generadores de assets (tileset PNG/TSJ y mapas .tmj)
 public/assets/       mapas, tileset y carpeta de audio (opcional)
@@ -178,7 +179,7 @@ Colócalo en un cofre (`collectibleId`) o en el suelo con un objeto `collectible
    **embebido** (Phaser no carga tilesets externos).
 2. `npm run assets` genera `public/assets/maps/<id>.tmj`.
 3. Añade la zona en `src/data/zones.ts` (`mapKey`, `nameKey`, `flightSpawn` si se puede volar
-   hasta ella, `unlockFlag` opcional, `music` opcional).
+   hasta ella, `unlockFlag` opcional, `music` con una pista de `src/audio/tracks.ts`).
 
 Leyenda ASCII (`scripts/maps/types.ts`): `.` pasto, `,` flores, `:` tierra, `s` arena, `#` muro
 de roca, `T` árbol, `~` agua, `b` arbusto, `_` suelo de madera, `=` suelo de piedra, `W` muro de
@@ -238,5 +239,14 @@ Para usar hojas dibujadas a mano, sigue `docs/SPRITES.md`: plantillas con
 
 ## Audio
 
-El juego suena con un sintetizador WebAudio de respaldo. Para usar archivos propios, ponlos en
-`public/assets/audio/` y regístralos en `src/data/audio.ts` (efectos por id y música por zona).
+Toda la música y los efectos se sintetizan en el navegador con WebAudio; no se descarga ningún
+archivo de sonido. La banda sonora (17 piezas: tema principal, una por región, jefes, final,
+créditos y fanfarrias) está escrita como texto en `src/audio/tracks.ts`: cada compás es un
+acorde y una melodía nota a nota (`'E5 - G5 .'`), y el bajo, el arpegio y la batería se generan
+con estilos (`src/audio/theory.ts`). Suena con voces de consola portátil: ondas de pulso, bajo
+triangular y ruido filtrado (`src/audio/music.ts`). Los efectos están en `src/audio/sfx.ts`.
+
+Para cambiar la música de una zona usa `music` en `src/data/zones.ts`; en una cinemática, el paso
+`{ do: 'music', id }`. Opciones → Música y Efectos tienen volúmenes separados. Si prefieres un
+archivo propio para un efecto, ponlo en `public/assets/audio/` y regístralo en
+`src/data/audio.ts`.
