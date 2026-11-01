@@ -403,6 +403,18 @@ Original top-down action-RPG (Phaser 4 + TypeScript strict + Vite). Personal, no
   presses Space (confirm only, harmless in play); buttons dim during dialogue/menus/cutscenes.
   Touch devices get a landscape view 216 px tall (`touchViewSize`), a rotate-the-phone overlay
   in portrait and a web manifest (fullscreen, landscape).
+- Art pass (2026-11-01, user: "mejora todo el arte, sorpréndeme"). Ground: `ui/groundPainter.ts`
+  paints each zone's whole ground into one canvas texture at load (`scenes/world/GroundArt.ts`,
+  cached per map for the session; the `Ground` layer is hidden): terrains spill over lower ones
+  along noisy edges that run across tiles (priority per surface, every pair of ground terrains
+  blends; built floors never do), a dark rim on the receiving side (foam on water, a drop into
+  pits), a slow light/shade drift, and decals by stable hash (tufts, flowers, pebbles, cracks,
+  ripples, salt glints, glowing specks). Water and pits are painted from the collision layer and
+  their tiles hidden. Wood floors are long planks and stone floors irregular flagstones colored
+  from the tile; interior walls cast a contact shadow. Air: `data/ambience.ts` per zone (shared
+  by lairs/abyss) and `scenes/world/Ambience.ts`: vignette (dark zones carry it around the player
+  like a lamp), color grade, drifting motes (glowing ones additive), fog banks, glints on water
+  and pulsing halos over glowing tiles (crystal, seam, glow-root, copper ore).
 - Feedback round (2026-10-31, mid arc 2): specials root the caster (no moving while charging,
   casting or during a barrage; the direction keys still turn and aim); ki shots lost their lock-on
   (the barrage was seeking enemies); punch speed streaks start at the fist and trail back toward

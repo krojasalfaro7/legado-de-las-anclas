@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { BALANCE } from '../config/balance';
+import { ambienceFor } from '../data/ambience';
 import { getCharacter, isPlayable } from '../data/characters';
 import { getTechnique } from '../data/kiTechniques';
 import type { TransformationDef } from '../data/types';
@@ -24,8 +25,10 @@ import { objectCenter, prop } from '../utils/tiled';
 import type { DialogueRequest } from './DialogueScene';
 import { SCENES } from './keys';
 import type { LensTarget } from './LensScene';
+import { Ambience } from './world/Ambience';
 import { CutsceneDirector } from './world/CutsceneDirector';
 import { DebugOverlay } from './world/DebugOverlay';
+import { paintZoneGround } from './world/GroundArt';
 import { Scenery } from './world/Scenery';
 import { flagsAllow, ZoneContent } from './world/ZoneContent';
 
@@ -79,6 +82,7 @@ export class WorldScene extends Phaser.Scene implements CombatHost {
   /** Last enemy the player hit; the lens shows it first. */
   lastTarget: Enemy | null = null;
   activeBoss: Enemy | null = null;
+  private ambience: Ambience | null = null;
   private shotGroup!: Phaser.Physics.Arcade.Group;
   /** A boss whose rival card is due once cutscenes and dialogue are over. */
   private pendingBossCard: Enemy | null = null;
@@ -136,6 +140,8 @@ export class WorldScene extends Phaser.Scene implements CombatHost {
     this.listen(Phaser.Scenes.Events.RESUME, this.applyEquipment);
     this.applyEquipment();
     audio.playMusic(zone.music);
+    const air = ambienceFor(zone.id);
+    this.ambience = air ? new Ambience(this, air, this.collisionLayer, this.player) : null;
     this.debug = new DebugOverlay(this);
     if (!this.scene.isActive(SCENES.ui)) this.scene.launch(SCENES.ui);
     // A zone change in the middle of a cutscene must not leave the HUD hidden.
@@ -169,7 +175,13 @@ export class WorldScene extends Phaser.Scene implements CombatHost {
     this.map = this.make.tilemap({ key: mapKey });
     const tileset = this.map.addTilesetImage('placeholder', 'tiles');
     if (!tileset) throw new Error('Tileset "placeholder" missing in map');
-    this.map.createLayer('Ground', tileset, 0, 0)?.setDepth(-10);
+    const ground = this.map.createLayer(
+      'Ground',
+      tileset,
+      0,
+      0,
+    ) as Phaser.Tilemaps.TilemapLayer | null;
+    ground?.setDepth(-10);
     const collision = this.map.createLayer(
       'Collision',
       tileset,
@@ -180,6 +192,7 @@ export class WorldScene extends Phaser.Scene implements CombatHost {
     collision.setDepth(-9);
     collision.setCollisionByProperty({ collides: true });
     this.collisionLayer = collision;
+    if (ground) paintZoneGround(this, mapKey, ground, collision);
     this.scenery = new Scenery(this, collision);
   }
 
@@ -761,6 +774,7 @@ export class WorldScene extends Phaser.Scene implements CombatHost {
 
   override update(time: number, delta: number): void {
     session.state.playTimeMs += delta;
+    this.ambience?.update(delta);
     if (this.changingZone) return;
     this.scenery.update([this.player]);
     if (this.cinematic) {
