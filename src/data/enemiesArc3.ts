@@ -422,7 +422,9 @@ export const ARC3_ENEMIES: Record<string, EnemyDef> = {
     nameKey: 'enemy.fondoHeart',
     descKey: 'enemy.fondoHeart.desc',
     level: 32,
-    hp: 4800,
+    // ~48 s of landed blows (chapter bosses take 20-35 s): its first two phases keep away, so
+    // most of that comes from blasts and blink punishes and the real fight runs much longer.
+    hp: 3900,
     atk: 39,
     def: 14,
     speed: 54,
@@ -457,7 +459,7 @@ export const ARC3_ENEMIES: Record<string, EnemyDef> = {
         patterns: ['tripleShot', 'radialBurst', 'tripleShot', 'blink'],
       },
       {
-        hpBelow: 0.65,
+        hpBelow: 0.7,
         speedMult: 1.15,
         cooldownMult: 0.8,
         keepAway: 120,
@@ -465,7 +467,8 @@ export const ARC3_ENEMIES: Record<string, EnemyDef> = {
         dialogueId: 'fondoHunger',
       },
       {
-        hpBelow: 0.35,
+        // The colossus stands and fights: a bigger share of the bar so the finale is a brawl.
+        hpBelow: 0.4,
         speedMult: 1.3,
         cooldownMult: 0.7,
         patterns: ['dash', 'melee', 'ultimate', 'radialBurst', 'dash'],
@@ -486,7 +489,7 @@ export const ARC3_ENEMIES: Record<string, EnemyDef> = {
     nameKey: 'enemy.fondoEcho',
     descKey: 'enemy.fondoEcho.desc',
     level: 40,
-    hp: 6400,
+    hp: 5800,
     atk: 47,
     def: 18,
     speed: 100,

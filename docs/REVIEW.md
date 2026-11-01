@@ -5,8 +5,12 @@ arriba.
 
 - **Decidido (2026-11-01)**: el final se queda como está; los créditos dicen "Un juego de Kevin
   Rojas"; los encargos de caza (Maela y Dámaso) cuentan desde que se aceptan.
-- **Dificultad del final**: Vesk, Corazón del Fondo y Eco del Fondo, pendiente de una pasada de
-  equilibrio.
+- **Dificultad del final (ajustado)**: medí cuánto tarda en caer cada jefe a golpes efectivos al
+  nivel de su capítulo. Los de capítulo caen en 20-35 s; Vesk Final (36 s) se queda; el Corazón
+  del Fondo pedía 60 s y además huye en sus dos primeras fases, así que bajó de 4800 a 3900 PV y
+  su forma de coloso (la que pelea cuerpo a cuerpo) ocupa ahora el 40 % final de la barra. El Eco
+  del Fondo (opcional, nivel 40) bajó de 6400 a 5800: sigue siendo el reto más largo. Si lo
+  juegas y se siente fácil o difícil, dime cuál.
 - **Retratos de jefes gigantes**: salen como un recorte oscuro (entra en la mejora de arte).
 
 - **Sensación de combate (ronda de feedback)**: el golpe solo conecta cuando el puño toca, el

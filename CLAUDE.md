@@ -210,7 +210,11 @@ Original top-down action-RPG (Phaser 4 + TypeScript strict + Vite). Personal, no
   a boss defeat plays the `victory` stinger and returns to the zone track; game over stings
   `gameOver`; the epilogue uses a cutscene `music` step and `credits` plays its own track. Music
   has its own volume (`Options.music`) on a bus at 0.55 under the effects; a limiter on master;
-  the context suspends while the page is hidden. Dev builds expose `window.__audio`.
+  the context suspends while the page is hidden. Dev builds expose `window.__audio`. A cutscene
+  that changed the music hands back to the zone's track (or `boss`) when it ends.
+- Final boss balance (2026-11-01): measured as seconds of landed melee at the boss's level
+  (chapter bosses 20-35 s). Vesk Final 2700 HP (36 s); El Fondo 3900 HP (48 s, mostly at range
+  in phases 1-2; the colossus phase is the last 40%); Eco del Fondo 5800 HP (61 s, optional).
 - Hit-stop pauses Arcade physics and resumes with `window.setTimeout` (real time), because scene
   timers would also be affected by the pause.
 - Options (volume, show controls hint) persist separately from the save (`anclas.options`),

@@ -5,6 +5,7 @@ import { COLLECTIBLE_IDS } from '../../data/collectibles';
 import { CUTSCENES } from '../../data/cutscenes';
 import { getEnemy } from '../../data/enemies';
 import { getNpc } from '../../data/npcs';
+import { ZONES } from '../../data/zones';
 import { Actor } from '../../entities/Actor';
 import { Enemy } from '../../entities/Enemy';
 import { characterSheetKey } from '../../entities/Player';
@@ -60,6 +61,8 @@ export class CutsceneDirector {
   private readonly touched = new Set<Actor>();
   private bars: Phaser.GameObjects.Rectangle[] = [];
   private pendingToasts: string[] = [];
+  /** A `music` or `credits` step changed the soundtrack: the zone's comes back at the end. */
+  private musicChanged = false;
 
   constructor(private readonly world: WorldScene) {}
 
@@ -86,6 +89,10 @@ export class CutsceneDirector {
     } finally {
       this.exitCinematic();
       this.running = false;
+      if (this.musicChanged) {
+        this.musicChanged = false;
+        audio.playMusic(this.world.activeBoss ? 'boss' : ZONES[this.world.zoneId]?.music);
+      }
     }
   }
 
@@ -180,6 +187,7 @@ export class CutsceneDirector {
         if (isSfx(step.id)) audio.play(step.id);
         return Promise.resolve();
       case 'music':
+        this.musicChanged = true;
         audio.playMusic(step.id);
         return Promise.resolve();
       case 'transform': {
@@ -374,6 +382,7 @@ export class CutsceneDirector {
   /** Scrolls the credits up over black, then fades back. */
   private credits(text: string): Promise<void> {
     const w = this.world;
+    this.musicChanged = true;
     audio.playMusic('credits');
     const depth = 410_000;
     const black = w.add
