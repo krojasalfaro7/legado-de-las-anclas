@@ -30,6 +30,11 @@ function stamp(target: Bitmap, rows: readonly string[], top: number, left: numbe
   });
 }
 
+/** A glyph's ink as rows of booleans (accent rows on top), for art that draws text itself. */
+export function glyphBitmap(char: string): Bitmap | null {
+  return buildGlyph(char);
+}
+
 function buildGlyph(char: string): Bitmap | null {
   const composed = COMPOSED[char];
   const baseChar = composed ? composed[0] : char;

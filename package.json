@@ -13,7 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -p .",
-    "assets": "node scripts/gen-tileset.ts && node scripts/build-maps.ts",
+    "assets": "node scripts/gen-tileset.ts && node scripts/build-maps.ts && node scripts/gen-icons.ts",
     "sprites:check": "node scripts/check-sprites.ts",
     "sprites:templates": "node scripts/gen-sprite-templates.ts"
   },

@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from '../config/constants';
+import { getCharacter } from '../data/characters';
 import { t } from '../i18n';
 import { audio } from '../services/audio';
 import { input } from '../services/input';
@@ -8,15 +9,36 @@ import { loadGame } from '../services/storage';
 import { isTouchDevice } from '../services/touchControls';
 import { MenuList } from '../ui/MenuList';
 import { FONT_SHADOW } from '../ui/pixelFont';
+import { SHEET_KEYS } from '../ui/spriteSpec';
+import { ensureActorSheet } from '../ui/textures';
+import { type Picture, paintBackdrop, paintLogo, TITLE_LAYOUT } from '../ui/titleArt';
 import { SCENES } from './keys';
 import type { WorldSceneData } from './WorldScene';
 
 type Entry = 'continue' | 'new';
 
+interface Drifter {
+  obj: Phaser.GameObjects.Image | Phaser.GameObjects.Graphics;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  phase: number;
+}
+
+/**
+ * Dusk over Aurel: the anchor's light rises from the hills, the Atalaya's beam sweeps the sea and
+ * Tavi watches from a cliff. The landscape and logo are painted once (ui/titleArt.ts); this scene
+ * animates the light, the stars, the clouds and the motes.
+ */
 export class TitleScene extends Phaser.Scene {
   private list!: MenuList;
   private entries: Entry[] = [];
-  private clouds: Array<{ obj: Phaser.GameObjects.Graphics; speed: number }> = [];
+  private clouds: Drifter[] = [];
+  private motes: Drifter[] = [];
+  private beam!: Phaser.GameObjects.Image;
+  private pillar!: Phaser.GameObjects.Image;
+  private time0 = 0;
 
   constructor() {
     super(SCENES.title);
@@ -24,119 +46,294 @@ export class TitleScene extends Phaser.Scene {
 
   create(): void {
     audio.playMusic('title');
-    this.drawSky();
-    this.clouds = [];
-    for (let i = 0; i < 5; i++) this.addCloud(Math.random() * GAME_WIDTH, 20 + i * 18, i);
-    this.drawLandscape();
+    const W = GAME_WIDTH;
+    const H = GAME_HEIGHT;
+    this.time0 = 0;
+    this.addPicture(`title-backdrop-${W}x${H}`, () => paintBackdrop(W, H)).setOrigin(0);
+    this.makeLightTextures();
+    this.addStars();
+    this.addClouds();
+    this.addAnchorLight();
+    this.addBeam();
+    this.addHero();
 
+    const logo = this.addPicture('title-logo', () => paintLogo(t('game.title')));
+    logo.setPosition(W / 2, Math.round(H * 0.2)).setAlpha(0);
+    this.tweens.add({ targets: logo, alpha: 1, y: logo.y - 4, duration: 1400, ease: 'Sine.Out' });
     this.add
-      .bitmapText(GAME_WIDTH / 2, 64, FONT_SHADOW, t('game.title'))
+      .bitmapText(
+        W / 2,
+        Math.round(H * 0.2) + logo.height / 2 + 6,
+        FONT_SHADOW,
+        t('title.subtitle'),
+      )
       .setOrigin(0.5)
-      .setScale(3)
-      .setTint(0xfff4d8);
-    this.add
-      .bitmapText(GAME_WIDTH / 2, 88, FONT_SHADOW, t('title.subtitle'))
-      .setOrigin(0.5)
-      .setTint(0xffe9a8);
+      .setTint(0xffd8b0);
 
     const saved = loadGame();
     this.entries = saved ? ['continue', 'new'] : ['new'];
     const labels: Record<Entry, string> = { continue: t('title.continue'), new: t('title.new') };
-    this.list = new MenuList(this, GAME_WIDTH / 2 - 50, 150, 100, 14);
+    const menuY = Math.round(H * 0.5);
+    this.add
+      .rectangle(
+        W / 2,
+        menuY + this.entries.length * 7 - 2,
+        132,
+        this.entries.length * 14 + 10,
+        0x0a0820,
+        0.55,
+      )
+      .setStrokeStyle(1, 0xffc890, 0.35);
+    this.list = new MenuList(this, W / 2 - 50, menuY, 100, 14);
     this.list.setItems(this.entries.map((e) => ({ label: labels[e] })));
     this.add
-      .bitmapText(
-        GAME_WIDTH / 2,
-        GAME_HEIGHT - 30,
-        FONT_SHADOW,
-        t(isTouchDevice() ? 'title.hintTouch' : 'title.hint'),
-      )
+      .bitmapText(W / 2, H - 30, FONT_SHADOW, t(isTouchDevice() ? 'title.hintTouch' : 'title.hint'))
       .setOrigin(0.5)
       .setTint(0xe0e8ff);
     this.add
-      .bitmapText(GAME_WIDTH / 2, GAME_HEIGHT - 16, FONT_SHADOW, t('title.disclaimer'))
+      .bitmapText(W / 2, H - 16, FONT_SHADOW, t('title.disclaimer'))
       .setOrigin(0.5)
       .setTint(0xb8c0d0);
+    this.cameras.main.fadeIn(600);
     input.consumeAll();
   }
 
-  /** Banded sky from deep blue to a warm horizon, in flat pixel-art steps. */
-  private drawSky(): void {
-    const bands = [0x3a6ab8, 0x4a7ec4, 0x5c92cc, 0x74a6d4, 0x8ebad8, 0xaccad8, 0xcad6d0, 0xe6dcc4];
-    const g = this.add.graphics();
-    const h = Math.ceil(GAME_HEIGHT / bands.length);
-    bands.forEach((c, i) => {
-      g.fillStyle(c).fillRect(0, i * h, GAME_WIDTH, h);
-      // Two-pixel dither row between bands so the steps read as a gradient.
-      const next = bands[i + 1];
-      if (next === undefined) return;
-      g.fillStyle(next);
-      for (let x = (i % 2) * 2; x < GAME_WIDTH; x += 4) g.fillRect(x, (i + 1) * h - 2, 2, 2);
+  /** A painted picture, cached as a texture for the session. */
+  private addPicture(key: string, paint: () => Picture): Phaser.GameObjects.Image {
+    if (!this.textures.exists(key)) {
+      const pic = paint();
+      const canvas = document.createElement('canvas');
+      canvas.width = pic.width;
+      canvas.height = pic.height;
+      canvas.getContext('2d')?.putImageData(new ImageData(pic.data, pic.width, pic.height), 0, 0);
+      this.textures.addCanvas(key, canvas);
+    }
+    return this.add.image(0, 0, key);
+  }
+
+  private makeLightTextures(): void {
+    const canvas = (
+      key: string,
+      w: number,
+      h: number,
+      draw: (c: CanvasRenderingContext2D) => void,
+    ) => {
+      if (this.textures.exists(key)) return;
+      const el = document.createElement('canvas');
+      el.width = w;
+      el.height = h;
+      const c = el.getContext('2d');
+      if (c) draw(c);
+      this.textures.addCanvas(key, el);
+    };
+    // The anchor's light: a soft column, brightest at its core and its foot.
+    canvas('title-pillar', 48, 256, (c) => {
+      const across = c.createLinearGradient(0, 0, 48, 0);
+      across.addColorStop(0, 'rgba(255,255,255,0)');
+      across.addColorStop(0.42, 'rgba(255,255,255,0.35)');
+      across.addColorStop(0.5, 'rgba(255,255,255,1)');
+      across.addColorStop(0.58, 'rgba(255,255,255,0.35)');
+      across.addColorStop(1, 'rgba(255,255,255,0)');
+      c.fillStyle = across;
+      c.fillRect(0, 0, 48, 256);
+      c.globalCompositeOperation = 'destination-in';
+      const up = c.createLinearGradient(0, 0, 0, 256);
+      up.addColorStop(0, 'rgba(0,0,0,0)');
+      up.addColorStop(0.6, 'rgba(0,0,0,0.55)');
+      up.addColorStop(1, 'rgba(0,0,0,1)');
+      c.fillStyle = up;
+      c.fillRect(0, 0, 48, 256);
+    });
+    canvas('title-glow', 64, 64, (c) => {
+      const g = c.createRadialGradient(32, 32, 0, 32, 32, 32);
+      g.addColorStop(0, 'rgba(255,255,255,1)');
+      g.addColorStop(0.3, 'rgba(255,255,255,0.4)');
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      c.fillStyle = g;
+      c.fillRect(0, 0, 64, 64);
+    });
+    // The lighthouse beam: a cone that widens and fades away from the lamp.
+    canvas('title-beam', 200, 40, (c) => {
+      const g = c.createLinearGradient(0, 0, 200, 0);
+      g.addColorStop(0, 'rgba(255,255,255,0.7)');
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      c.fillStyle = g;
+      c.beginPath();
+      c.moveTo(0, 18);
+      c.lineTo(200, 0);
+      c.lineTo(200, 40);
+      c.lineTo(0, 22);
+      c.closePath();
+      c.fill();
+    });
+    canvas('title-dot', 1, 1, (c) => {
+      c.fillStyle = '#fff';
+      c.fillRect(0, 0, 1, 1);
     });
   }
 
-  private addCloud(x: number, y: number, seed: number): void {
-    const g = this.add.graphics({ x, y });
-    const puffs = 3 + (seed % 3);
-    for (let i = 0; i < puffs; i++) {
-      const px = i * 14 - puffs * 7;
-      const r = 9 + ((seed * 7 + i * 5) % 7);
-      g.fillStyle(0xc8d6e4).fillEllipse(px, 3, r * 2.4, r * 1.2);
-      g.fillStyle(0xf4f8fc).fillEllipse(px, 0, r * 2.2, r * 1.1);
+  private addStars(): void {
+    const H = GAME_HEIGHT * TITLE_LAYOUT.horizon * 0.5;
+    for (let i = 0; i < 28; i++) {
+      const star = this.add
+        .image(Math.random() * GAME_WIDTH, Math.random() * H, 'title-dot')
+        .setTint(Math.random() < 0.3 ? 0xffe0c0 : 0xe0e8ff)
+        .setAlpha(0.2);
+      this.tweens.add({
+        targets: star,
+        alpha: 0.6 + Math.random() * 0.4,
+        duration: 700 + Math.random() * 1800,
+        delay: Math.random() * 2000,
+        yoyo: true,
+        repeat: -1,
+      });
     }
-    this.clouds.push({ obj: g, speed: 6 + (seed % 4) * 3 });
   }
 
-  /** Mountains, hills, the sea and the Watchtower on its cliff, as flat layered shapes. */
-  private drawLandscape(): void {
+  /** Long thin clouds, dark on top and lit pink from below by the sunken sun. */
+  private addClouds(): void {
+    this.clouds = [];
+    for (let i = 0; i < 5; i++) {
+      const g = this.add.graphics();
+      const len = 36 + ((i * 23) % 40);
+      // Rows from top to bottom: [inset left, inset right, color].
+      const rows: Array<[number, number, number]> = [
+        [len * 0.35, len * 0.2, 0x3e3260],
+        [len * 0.15, len * 0.05, 0x524070],
+        [0, 0, 0x6a4a7a],
+        [len * 0.1, len * 0.25, 0xd88a96],
+        [len * 0.3, len * 0.45, 0xf0b0a0],
+      ];
+      rows.forEach(([l, r, color], y) => {
+        g.fillStyle(color).fillRect(Math.round(l), y, Math.max(2, Math.round(len - l - r)), 1);
+      });
+      this.clouds.push({
+        obj: g,
+        x: Math.random() * GAME_WIDTH,
+        y: GAME_HEIGHT * (0.12 + i * 0.075),
+        vx: -(2 + i * 1.2),
+        vy: 0,
+        phase: 0,
+      });
+    }
+  }
+
+  private addAnchorLight(): void {
     const W = GAME_WIDTH;
     const H = GAME_HEIGHT;
-    const g = this.add.graphics();
-    const ridge = (base: number, amp: number, period: number, color: number, phase: number) => {
-      g.fillStyle(color);
-      for (let x = 0; x < W; x += 2) {
-        const top =
-          base - Math.abs(Math.sin((x + phase) / period)) * amp - Math.sin((x + phase) / 13) * 3;
-        g.fillRect(x, Math.round(top), 2, H - Math.round(top));
-      }
-    };
-    ridge(150, 46, 70, 0x8a90b4, 0);
-    // Snow caps on the far range.
-    g.fillStyle(0xe8eef6);
-    for (let x = 0; x < W; x += 2) {
-      const peak = Math.abs(Math.sin(x / 70));
-      if (peak > 0.86) g.fillRect(x, Math.round(150 - peak * 46 - Math.sin(x / 13) * 3), 2, 4);
-    }
-    ridge(178, 22, 50, 0x5e8a6a, 40);
-    g.fillStyle(0x2a62b0).fillRect(0, 196, W, H - 196);
-    g.fillStyle(0x4a82c8);
-    for (let x = 6; x < W; x += 23) g.fillRect(x, 202 + ((x * 7) % 30), 6, 1);
-    ridge(206, 18, 90, 0x4c9a58, 200);
-    // The Watchtower on the cliff, right side.
-    const tx = W - 70;
-    g.fillStyle(0x6a6478).fillRect(tx - 34, 180, 70, H - 180);
-    g.fillStyle(0x4c9a58).fillRect(tx - 34, 176, 70, 6);
-    g.fillStyle(0x3a3640).fillRect(tx - 9, 112, 18, 66);
-    g.fillStyle(0x9a96a0).fillRect(tx - 8, 112, 16, 65);
-    g.fillStyle(0xc04a3a)
-      .fillRect(tx - 8, 132, 16, 6)
-      .fillRect(tx - 8, 154, 16, 6);
-    g.fillStyle(0x3a3640).fillRect(tx - 11, 104, 22, 9);
-    g.fillStyle(0xffe890).fillRect(tx - 6, 96, 12, 8);
-    g.fillStyle(0x3a3640).fillRect(tx - 8, 92, 16, 4);
-    const beam = this.add
-      .image(tx, 100, 'glow')
-      .setTint(0xfff0b0)
-      .setScale(2, 1)
+    const x = Math.round(W * TITLE_LAYOUT.pillarX);
+    const foot = Math.round(H * TITLE_LAYOUT.horizon - H * 0.06 + 4);
+    this.pillar = this.add
+      .image(x, foot, 'title-pillar')
+      .setOrigin(0.5, 1)
+      .setDisplaySize(26, foot + 8)
+      .setTint(0xc8f0ff)
       .setBlendMode(Phaser.BlendModes.ADD);
-    this.tweens.add({ targets: beam, alpha: 0.3, yoyo: true, repeat: -1, duration: 1100 });
+    this.add
+      .image(x, foot, 'title-glow')
+      .setScale(1.6, 0.9)
+      .setTint(0x9ae8ff)
+      .setAlpha(0.8)
+      .setBlendMode(Phaser.BlendModes.ADD);
+    // The crystal itself, a sliver on the hilltop.
+    this.add
+      .graphics()
+      .fillStyle(0xe8fbff)
+      .fillTriangle(x, foot - 9, x - 3, foot - 2, x + 3, foot - 2)
+      .fillStyle(0x9ae8ff)
+      .fillTriangle(x - 3, foot - 2, x + 3, foot - 2, x, foot + 2);
+    // Its reflection, broken by the waves.
+    const seaTop = H * TITLE_LAYOUT.horizon + H * 0.04;
+    for (let y = seaTop + 2; y < H * 0.92; y += 3) {
+      const d = (y - seaTop) / (H - seaTop);
+      const dash = this.add
+        .rectangle(x + (Math.random() - 0.5) * 6, y, 3 + Math.random() * 6 + d * 8, 1, 0xd8f4ff)
+        .setBlendMode(Phaser.BlendModes.ADD)
+        .setAlpha(0.15);
+      this.tweens.add({
+        targets: dash,
+        alpha: 0.65 - d * 0.4,
+        duration: 300 + Math.random() * 700,
+        yoyo: true,
+        repeat: -1,
+        delay: Math.random() * 800,
+      });
+    }
+    this.motes = [];
+    for (let i = 0; i < 18; i++) {
+      const img = this.add
+        .image(x, foot, 'title-dot')
+        .setTint(i % 3 ? 0xc8f4ff : 0xfff0c0)
+        .setBlendMode(Phaser.BlendModes.ADD);
+      this.motes.push({
+        obj: img,
+        x,
+        y: foot - Math.random() * foot,
+        vx: 0,
+        vy: -(8 + Math.random() * 14),
+        phase: Math.random() * Math.PI * 2,
+      });
+    }
+  }
+
+  private addBeam(): void {
+    const W = GAME_WIDTH;
+    const H = GAME_HEIGHT;
+    const towerTop = Math.round(H * TITLE_LAYOUT.horizon - H * 0.3);
+    this.beam = this.add
+      .image(Math.round(W * TITLE_LAYOUT.towerX), towerTop - 4, 'title-beam')
+      .setOrigin(0, 0.5)
+      .setTint(0xfff0c0)
+      .setBlendMode(Phaser.BlendModes.ADD);
+    this.add
+      .image(this.beam.x, this.beam.y, 'title-glow')
+      .setScale(0.5)
+      .setTint(0xfff0b0)
+      .setBlendMode(Phaser.BlendModes.ADD);
+  }
+
+  /** Tavi on the cliff edge, her back to us, looking at the light. */
+  private addHero(): void {
+    const tavi = getCharacter('tavi');
+    const key = SHEET_KEYS.character('tavi');
+    ensureActorSheet(this, key, tavi.look);
+    const y = Math.round(GAME_HEIGHT * TITLE_LAYOUT.cliffTop) + 1;
+    this.add
+      .sprite(Math.round(GAME_WIDTH * TITLE_LAYOUT.heroX), y, key)
+      .setOrigin(0.5, 1)
+      // Dusk light: a cool shade over her colors.
+      .setTint(0xa898c8)
+      .play(`${key}-idle-up`);
   }
 
   override update(_time: number, delta: number): void {
+    const dt = delta / 1000;
+    this.time0 += dt;
     for (const c of this.clouds) {
-      c.obj.x -= (delta / 1000) * c.speed;
-      if (c.obj.x < -90) c.obj.x += GAME_WIDTH + 180;
+      c.x += c.vx * dt;
+      if (c.x < -100) c.x += GAME_WIDTH + 200;
+      c.obj.setPosition(Math.round(c.x), Math.round(c.y));
     }
+    const foot = this.pillar.y;
+    for (const m of this.motes) {
+      m.y += m.vy * dt;
+      if (m.y < foot - GAME_HEIGHT * 0.5) {
+        m.y = foot - 4;
+        m.phase = Math.random() * Math.PI * 2;
+      }
+      const rise = (foot - m.y) / (GAME_HEIGHT * 0.5);
+      m.obj
+        .setPosition(
+          Math.round(this.pillar.x + Math.sin(this.time0 * 1.7 + m.phase) * (2 + rise * 10)),
+          Math.round(m.y),
+        )
+        .setAlpha(1 - rise);
+    }
+    this.pillar.setAlpha(0.72 + Math.sin(this.time0 * 1.3) * 0.18);
+    // The beam turns: seen from the side, it swings out and back on either side of the lamp.
+    const turn = Math.cos(this.time0 * 0.8);
+    this.beam.setScale(turn * 1.1, 1).setAlpha(0.25 + Math.abs(turn) * 0.45);
+
     this.list.update();
     if (!input.justPressed('confirm') && !input.justPressed('pause')) return;
     const entry = this.entries[this.list.index];
