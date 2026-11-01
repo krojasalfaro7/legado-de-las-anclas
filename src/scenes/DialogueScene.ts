@@ -4,6 +4,7 @@ import { audio } from '../services/audio';
 import { input } from '../services/input';
 import { MenuList } from '../ui/MenuList';
 import { FONT_SHADOW } from '../ui/pixelFont';
+import { portraitView } from '../ui/portrait';
 import { SCENES } from './keys';
 
 export interface DialogueLineView {
@@ -39,6 +40,7 @@ export class DialogueScene extends Phaser.Scene {
   private more!: Phaser.GameObjects.BitmapText;
   private portraitBox!: Phaser.GameObjects.Rectangle;
   private portrait!: Phaser.GameObjects.Image;
+  private portraitTop = 0;
   private choices: MenuList | null = null;
   private choiceBox: Phaser.GameObjects.Rectangle | null = null;
 
@@ -71,7 +73,8 @@ export class DialogueScene extends Phaser.Scene {
       )
       .setOrigin(0)
       .setStrokeStyle(1, 0x50607a);
-    this.portrait = this.add.image(0, top + 6 + PORTRAIT.pad, '__DEFAULT').setOrigin(0);
+    this.portraitTop = top + 6 + PORTRAIT.pad;
+    this.portrait = this.add.image(0, this.portraitTop, '__DEFAULT').setOrigin(0);
     this.more = this.add
       .bitmapText(GAME_WIDTH - 18, GAME_HEIGHT - 20, FONT_SHADOW, '▼')
       .setTint(0xffd34a);
@@ -100,11 +103,13 @@ export class DialogueScene extends Phaser.Scene {
     this.speaker.setX(x);
     this.body.setX(x).setMaxWidth(GAME_WIDTH - x - 22);
     if (!p || !has) return;
-    this.portrait.setTexture(p.key, p.frame).setScale(PORTRAIT.scale);
-    // Center a crop of the frame's top (the head); large sprites crop their middle columns.
-    const cx = Math.max(0, Math.round((this.portrait.frame.width - PORTRAIT.w) / 2));
-    this.portrait.setCrop(cx, 0, PORTRAIT.w, PORTRAIT.h);
-    this.portrait.setX(12 + PORTRAIT.pad - cx * PORTRAIT.scale);
+    const boxW = PORTRAIT.w * PORTRAIT.scale;
+    const boxH = PORTRAIT.h * PORTRAIT.scale;
+    const v = portraitView(this, p.key, p.frame, boxW, boxH);
+    this.portrait.setTexture(p.key, p.frame).setScale(v.scale).setCrop(v.x, v.y, v.w, v.h);
+    // Center what's shown in the box (the crop keeps the image's own origin).
+    const left = 12 + PORTRAIT.pad + Math.round((boxW - v.w * v.scale) / 2);
+    this.portrait.setPosition(left - v.x * v.scale, this.portraitTop - v.y * v.scale);
   }
 
   private showChoices(): void {

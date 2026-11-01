@@ -11,7 +11,11 @@ arriba.
   su forma de coloso (la que pelea cuerpo a cuerpo) ocupa ahora el 40 % final de la barra. El Eco
   del Fondo (opcional, nivel 40) bajó de 6400 a 5800: sigue siendo el reto más largo. Si lo
   juegas y se siente fácil o difícil, dime cuál.
-- **Retratos de jefes gigantes**: salen como un recorte oscuro (entra en la mejora de arte).
+- **Arte (hecho, 2026-11-01)**: suelo pintado con bordes orgánicos entre terrenos, atmósfera por
+  zona (luz, partículas, niebla, brillos), suelos de tablones y losas en la Atalaya, portada
+  nueva con logotipo, ícono de la app, gólems rediseñados (incluido el Coloso de Salmuera) y
+  retratos de gigantes que ya encajan. Si alguna zona te parece demasiado oscura (la Hondura y
+  el Fondo usan una luz alrededor del jugador), dime cuál.
 
 - **Sensación de combate (ronda de feedback)**: el golpe solo conecta cuando el puño toca, el
   rayo empuja según el peso del enemigo, y los disparos y rayos chocan con lo que se ve (los
@@ -21,10 +25,6 @@ arriba.
   personaje y la situación.
 - **Cap. 7, la sombra de Tavi**: la sombra no se destruye, Tavi la acepta y de ahí nace Marea
   Profunda. Es una decisión de tono (más introspectiva); revisa si te gusta el diálogo.
-
-- **Coloso de Salmuera (jefe cap. 4)**: es el gólem de siempre ampliado ×3. Funciona y se lee
-  como "enorme", pero es un bloque bastante simple; si quieres un diseño propio de jefe gigante,
-  es candidato a redibujar.
 
 - **Música (hecho, 2026-11-01)**: banda sonora original compuesta y sintetizada en el juego
   (`src/audio/tracks.ts`), más todos los efectos rehechos. Si alguna pieza no te convence, dime

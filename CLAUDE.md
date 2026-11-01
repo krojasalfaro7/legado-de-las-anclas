@@ -415,6 +415,19 @@ Original top-down action-RPG (Phaser 4 + TypeScript strict + Vite). Personal, no
   by lairs/abyss) and `scenes/world/Ambience.ts`: vignette (dark zones carry it around the player
   like a lamp), color grade, drifting motes (glowing ones additive), fog banks, glints on water
   and pulsing halos over glowing tiles (crystal, seam, glow-root, copper ore).
+- Title (same pass): `ui/titleArt.ts` paints a dusk landscape (dithered sky, hazy ranges, sea,
+  cliffs, the Atalaya) and the logo (pixel-font glyphs through Scale2x twice, gold gradient,
+  outline, drop shadow; `glyphBitmap` is exported from `ui/pixelFont.ts` for that). TitleScene
+  animates the anchor's light pillar and reflection, the lighthouse beam (a cone whose scaleX
+  follows a cosine, so it reads as turning), stars, clouds and motes; Tavi stands on the cliff
+  seen from behind. `scripts/gen-icons.ts` (part of `npm run assets`) paints the app icons in
+  `public/icons/`.
+- Portraits (`ui/portrait.ts`): people at 2x from the top of the head; anything wider than 24 px
+  (heavies, golems, giants) at 1x, centered, from the first row with ink, in both the dialogue
+  box and the Lens. Golems (`ui/golemFrames.ts`) are painted natively at their frame size
+  (48×42, giants 72×63) from hewn blocks and boulder-chain arms with per-stone shading, moss
+  on the shoulders, a light core with veins in the chest and the anchor shard in the back.
+  Asset scripts load these modules with plain Node: no TS parameter properties there.
 - Feedback round (2026-10-31, mid arc 2): specials root the caster (no moving while charging,
   casting or during a barrage; the direction keys still turn and aim); ki shots lost their lock-on
   (the barrage was seeking enemies); punch speed streaks start at the fist and trail back toward

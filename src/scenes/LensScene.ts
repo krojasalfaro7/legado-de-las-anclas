@@ -5,6 +5,7 @@ import { t } from '../i18n';
 import { input } from '../services/input';
 import { frameIndex } from '../ui/humanoid';
 import { FONT_SHADOW } from '../ui/pixelFont';
+import { portraitView } from '../ui/portrait';
 import { SCENES } from './keys';
 
 export interface LensTarget {
@@ -29,6 +30,7 @@ export class LensScene extends Phaser.Scene {
   private index = 0;
   private reticle!: Phaser.GameObjects.Rectangle;
   private portrait!: Phaser.GameObjects.Image;
+  private portraitBox = { x: 0, y: 0, w: 48, h: 78 };
   private info!: Phaser.GameObjects.BitmapText;
   private desc!: Phaser.GameObjects.BitmapText;
   private counter!: Phaser.GameObjects.BitmapText;
@@ -79,7 +81,8 @@ export class LensScene extends Phaser.Scene {
       .rectangle(panelX, panelY, 210, 134, 0x001808, 0.88)
       .setOrigin(0)
       .setStrokeStyle(1, GREEN);
-    this.portrait = this.add.image(panelX + 26, panelY + 34, 'pixel').setScale(2);
+    this.portraitBox = { x: panelX + 3, y: panelY + 4, w: 48, h: 78 };
+    this.portrait = this.add.image(0, 0, 'pixel').setOrigin(0);
     this.info = this.add
       .bitmapText(panelX + 54, panelY + 6, FONT_SHADOW, '')
       .setTint(GREEN)
@@ -100,7 +103,17 @@ export class LensScene extends Phaser.Scene {
     if (!target) return;
     const def = target.def;
     this.reticle.setPosition(Math.round(target.x), Math.round(target.y));
-    this.portrait.setTexture(target.sheetKey, frameIndex('down', 'idle'));
+    const frame = frameIndex('down', 'idle');
+    const box = this.portraitBox;
+    const v = portraitView(this, target.sheetKey, frame, box.w, box.h);
+    this.portrait
+      .setTexture(target.sheetKey, frame)
+      .setScale(v.scale)
+      .setCrop(v.x, v.y, v.w, v.h)
+      .setPosition(
+        box.x + Math.round((box.w - v.w * v.scale) / 2) - v.x * v.scale,
+        box.y + Math.round((box.h - v.h * v.scale) / 2) - v.y * v.scale,
+      );
     this.info.setText(
       [
         t(def.nameKey),
