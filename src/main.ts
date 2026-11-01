@@ -59,6 +59,7 @@ if (isTouchDevice()) {
   game.events.on(Phaser.Core.Events.POST_STEP, () => {
     const world = game.scene.getScene(SCENES.world) as WorldScene | null;
     touch.setDim(quiet.some((k) => game.scene.isActive(k)) || Boolean(world?.cinematic));
+    touch.setTitle(game.scene.isActive(SCENES.title));
   });
 }
 // Browsers only allow fullscreen from inside a user gesture, so this can't wait for the game step.

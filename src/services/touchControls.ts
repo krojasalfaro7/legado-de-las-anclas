@@ -48,6 +48,9 @@ const CSS = `
 #tc .tc-tap { position: absolute; inset: 0; pointer-events: auto; touch-action: none; }
 #tc .tc-pad, #tc .tc-bar { transition: opacity .2s; }
 #tc.tc-dim .tc-pad, #tc.tc-dim .tc-bar { opacity: .35; }
+#tc.tc-title .tc-bar { top: calc(env(safe-area-inset-top) + 8px); }
+#tc.tc-title .tc-bar button:not(.tc-full) { display: none; }
+#tc.tc-title .tc-pad button:not(.tc-attack) { display: none; }
 #tc .tc-zone { position: absolute; left: 0; top: 18%; width: 46%; bottom: 0;
   pointer-events: auto; touch-action: none; }
 #tc .tc-base, #tc .tc-knob { position: absolute; border-radius: 50%; pointer-events: none;
@@ -120,6 +123,11 @@ export class TouchControls {
   /** Dialogue, menus and cutscenes: fade the buttons so they don't cover the text. */
   setDim(dim: boolean): void {
     this.root?.classList.toggle('tc-dim', dim);
+  }
+
+  /** The title screen keeps only "Golpe" (accept) and fullscreen, clear of the logo and text. */
+  setTitle(on: boolean): void {
+    this.root?.classList.toggle('tc-title', on);
   }
 
   /** Space is only "confirm", so a tap anywhere can press it without doing anything in play. */
@@ -213,6 +221,7 @@ export class TouchControls {
 
   private fullscreenButton(): HTMLButtonElement {
     const b = document.createElement('button');
+    b.className = 'tc-full';
     b.textContent = 'Pantalla';
     // Fullscreen (and the landscape lock) must start inside the gesture itself.
     b.addEventListener('pointerup', () => {
