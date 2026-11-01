@@ -5,9 +5,10 @@ El continente de Aurel se mantiene estable gracias a las _anclas_, cristales ant
 bajo cada región. La Atalaya es un gremio de guardianes que saben volar, con base en una torre
 sobre la costa. Y alguien está arrancando las anclas: las tierras empiezan a temblar y a hundirse.
 
-Esta versión es una **vertical slice** del Arco 1, _El Ancla Rota_: la Atalaya, el Valle Bruma,
-el mapa del continente, tres tipos de enemigos, un mini-jefe de dos fases, coleccionables y
-guardado.
+**Juégalo en el navegador:** https://krojasalfaro7.github.io/legado-de-las-anclas/
+
+El juego completo: cuatro personajes jugables, tres arcos y nueve capítulos, barreras por
+personaje, misiones secundarias, transformaciones, un final y un post-juego.
 
 Proyecto personal sin fines de lucro. Todo el contenido (arte, sonido, personajes e historia) es
 original; no se usa material de otros juegos, animes ni mangas.

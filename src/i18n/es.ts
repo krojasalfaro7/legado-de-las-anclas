@@ -3,11 +3,11 @@ import { esStory } from './esStory.ts';
 
 export const es = {
   'game.title': 'Legado de las Anclas',
-  'title.subtitle': 'Arco 1: El Ancla Rota · Demo',
+  'title.subtitle': 'Una historia de Aurel',
   'title.new': 'Nueva partida',
   'title.continue': 'Continuar',
   'title.hint': 'Flechas elegir · D o Enter aceptar · F pantalla completa',
-  'title.disclaimer': 'Proyecto personal sin fines de lucro. Arte provisional.',
+  'title.disclaimer': 'Un juego de Kevin Rojas. Proyecto personal sin fines de lucro.',
   'zone.hub': 'La Atalaya',
   'zone.field': 'Valle Bruma',
   'zone.cobre': 'Hondonada de Cobre',
