@@ -1,0 +1,11 @@
+{
+  "name": "Legado de las Anclas",
+  "short_name": "Anclas",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#0b0e1a",
+  "theme_color": "#0b0e1a"
+}

@@ -8,6 +8,7 @@ import { t } from '../i18n';
 import { audio } from '../services/audio';
 import { input } from '../services/input';
 import { session } from '../services/session';
+import { isTouchDevice } from '../services/touchControls';
 import { flightCamera, type Mode7Camera, project, stepAltitude } from '../systems/mode7';
 import { type Biome, biomeAt, generateTerrain, terrainHeight } from '../systems/terrain';
 import type { Facing } from '../ui/humanoid';
@@ -447,7 +448,12 @@ export class WorldMapScene extends Phaser.Scene {
       .setOrigin(0)
       .setDepth(30_000);
     this.add
-      .bitmapText(GAME_WIDTH - 4, GAME_HEIGHT - 13, FONT_SHADOW, t('map.hint'))
+      .bitmapText(
+        GAME_WIDTH - 4,
+        GAME_HEIGHT - 13,
+        FONT_SHADOW,
+        t(isTouchDevice() ? 'map.hintTouch' : 'map.hint'),
+      )
       .setOrigin(1, 0)
       .setTint(0xe0e8ff)
       .setDepth(30_001);

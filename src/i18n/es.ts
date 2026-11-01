@@ -7,6 +7,7 @@ export const es = {
   'title.new': 'Nueva partida',
   'title.continue': 'Continuar',
   'title.hint': 'Flechas elegir · D o Enter aceptar · F pantalla completa',
+  'title.hintTouch': 'Joystick elegir · Golpe aceptar',
   'title.disclaimer': 'Un juego de Kevin Rojas. Proyecto personal sin fines de lucro.',
   'zone.hub': 'La Atalaya',
   'zone.field': 'Valle Bruma',
@@ -16,6 +17,7 @@ export const es = {
 
   'map.title': 'Continente de Aurel',
   'map.hint': 'Flechas mover · D subir · S bajar',
+  'map.hintTouch': 'Joystick mover · Golpe subir · Especial bajar',
   'map.land': 'Baja con S para aterrizar',
   'map.locked': 'Aún no tienes motivo para ir allí.',
   'map.unknown': 'Un cañón envuelto en polvo de cobre...',
@@ -113,6 +115,7 @@ export const es = {
   'menu.tab.options': 'Opciones',
   'menu.tab.controls': 'Controles',
   'menu.hint': '<> o Q/A pestaña · D aceptar · S/Esc salir',
+  'menu.hintTouch': 'Elegir/Guardia pestaña · Golpe aceptar · Especial salir',
 
   'stat.str': 'STR  Fuerza',
   'stat.pow': 'POW  Poder de ki',

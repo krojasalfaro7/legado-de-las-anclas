@@ -4,6 +4,7 @@ import { DEFAULT_BINDINGS } from './config/controls';
 import { BootScene } from './scenes/BootScene';
 import { DialogueScene } from './scenes/DialogueScene';
 import { GameOverScene } from './scenes/GameOverScene';
+import { SCENES } from './scenes/keys';
 import { LensScene } from './scenes/LensScene';
 import { PauseScene } from './scenes/PauseScene';
 import { PreloadScene } from './scenes/PreloadScene';
@@ -14,6 +15,7 @@ import { WorldScene } from './scenes/WorldScene';
 import { audio } from './services/audio';
 import { input } from './services/input';
 import { session } from './services/session';
+import { isTouchDevice, TouchControls } from './services/touchControls';
 
 input.attach(window);
 
@@ -50,6 +52,15 @@ const config: Phaser.Types.Core.GameConfig = {
 const game = new Phaser.Game(config);
 game.events.on(Phaser.Core.Events.PRE_STEP, (time: number) => input.update(time));
 audio.attach(game, window);
+if (isTouchDevice()) {
+  const touch = new TouchControls(() => game.scale.toggleFullscreen());
+  touch.attach();
+  const quiet = [SCENES.dialogue, SCENES.pause, SCENES.worldMap, SCENES.lens, SCENES.title];
+  game.events.on(Phaser.Core.Events.POST_STEP, () => {
+    const world = game.scene.getScene(SCENES.world) as WorldScene | null;
+    touch.setDim(quiet.some((k) => game.scene.isActive(k)) || Boolean(world?.cinematic));
+  });
+}
 // Browsers only allow fullscreen from inside a user gesture, so this can't wait for the game step.
 window.addEventListener('keydown', (e) => {
   if (!e.repeat && DEFAULT_BINDINGS.keyboard.fullscreen.includes(e.code))

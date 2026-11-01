@@ -66,6 +66,20 @@ para cambiar de pestaña. La pestaña **Misiones** de la pausa dice qué hacer a
 pasos cumplidos y el actual de cada misión (historia y secundarias), sin adelantar los siguientes.
 Las misiones son datos en `src/data/objectives.ts` (cada paso con su condición de cumplido).
 
+### En el móvil
+
+En teléfonos y tablets aparecen controles en pantalla (`src/services/touchControls.ts`), y se
+juega en horizontal (si el teléfono está en vertical, pide girarlo):
+
+- **Pulgar izquierdo**: un joystick aparece donde apoyas el dedo, en la mitad izquierda.
+- **Pulgar derecho**: Golpe, Especial (mantén para cargar), Guardia, Cargar (Guardia + Especial)
+  y Volar.
+- **Barra superior**: Elegir especial, Cambiar de personaje, Usar, Lente, Pausa y Pantalla
+  completa (en iPhone, "Añadir a pantalla de inicio" lo abre a pantalla completa).
+- Tocar la pantalla avanza los diálogos. Durante diálogos y menús los botones se atenúan.
+
+Cada botón mantiene pulsada su tecla, así que todo funciona igual que con el teclado.
+
 ## Selector de especiales
 
 Arriba a la izquierda, bajo el retrato, están las técnicas de ki y la transformación del

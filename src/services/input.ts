@@ -14,7 +14,7 @@ import {
   type Vec2,
 } from '../systems/inputState';
 
-export type Device = 'keyboard' | 'gamepad';
+export type Device = 'keyboard' | 'gamepad' | 'touch';
 
 /**
  * Scene-independent input: reads the DOM keyboard and the Gamepad API directly so
@@ -24,6 +24,9 @@ class InputService {
   private keys = new Set<string>();
   private buttons = new Set<number>();
   private stick: Vec2 = { x: 0, y: 0 };
+  /** On-screen controls (services/touchControls.ts): held key codes and the thumb stick. */
+  private touchKeys = new Map<string, number>();
+  private touchStick: Vec2 = { x: 0, y: 0 };
   private state = new ActionState();
   private bindings: Bindings = DEFAULT_BINDINGS;
   private captured = new Set<string>();
@@ -46,11 +49,30 @@ class InputService {
     this.captured = new Set(Object.values(bindings.keyboard).flat());
   }
 
+  /** An on-screen button acts like holding its keyboard key, so it shares every binding. */
+  touchKey(code: string, down: boolean): void {
+    // Counted: two buttons may hold the same key (guard, and the ki charge's guard + special).
+    const held = (this.touchKeys.get(code) ?? 0) + (down ? 1 : -1);
+    if (held > 0) this.touchKeys.set(code, held);
+    else this.touchKeys.delete(code);
+    this.lastDevice = 'touch';
+  }
+
+  /** The on-screen thumb stick, in [-1, 1] (already past its deadzone). */
+  setTouchStick(v: Vec2): void {
+    this.touchStick = v;
+    if (v.x !== 0 || v.y !== 0) this.lastDevice = 'touch';
+  }
+
   /** Call once per game step, before scenes update. */
   update(nowMs: number): void {
     this.now = nowMs;
     this.pollGamepad();
-    const current = resolveActions(this.keys, this.buttons, this.bindings);
+    if (this.stick.x === 0 && this.stick.y === 0) this.stick = this.touchStick;
+    const keys = this.touchKeys.size
+      ? new Set([...this.keys, ...this.touchKeys.keys()])
+      : this.keys;
+    const current = resolveActions(keys, this.buttons, this.bindings);
     // The stick also drives directional actions so menus work with it like a d-pad.
     if (this.stick.x < -0.5) current.add('left');
     if (this.stick.x > 0.5) current.add('right');

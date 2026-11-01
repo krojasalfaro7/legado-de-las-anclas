@@ -4,6 +4,7 @@ import type { Enemy } from '../entities/Enemy';
 import { t } from '../i18n';
 import { options } from '../services/options';
 import { session } from '../services/session';
+import { isTouchDevice } from '../services/touchControls';
 import { activeProgress } from '../systems/gameState';
 import { expToNext } from '../systems/leveling';
 import { Bar } from '../ui/Bar';
@@ -168,7 +169,8 @@ export class UIScene extends Phaser.Scene {
     if (!player?.active) return;
     // The dialogue box covers the bottom of the screen: nothing of the HUD should peek out.
     const talking = this.scene.isActive(SCENES.dialogue);
-    const hint = options.showControls && !this.boss && !talking;
+    // On a phone the buttons are labeled: the keyboard hint would only cover the screen.
+    const hint = options.showControls && !isTouchDevice() && !this.boss && !talking;
     this.controlsHint.setVisible(hint);
     this.controlsStrip.setVisible(hint || (this.boss !== null && !talking));
     this.toastPanel.setVisible(!talking && this.toastPanel.text !== '');

@@ -383,6 +383,13 @@ Original top-down action-RPG (Phaser 4 + TypeScript strict + Vite). Personal, no
   Corona de marea), Pim's reward for every relic (`allDelivered` → Abrigo del archivero; new
   relic Perla del Fondo). Spawns that are ways back up from deeper zones carry `afterBarriers`
   so the barrier flood fill doesn't start behind the barriers they sit past.
+- Mobile (2026-11-01): `services/touchControls.ts` draws DOM controls over the canvas on coarse
+  pointers (floating thumb stick on the left half, action cluster on the right, a top bar). Each
+  button holds keyboard codes through `input.touchKey` (ref-counted), the stick feeds
+  `input.setTouchStick`, so every binding, menu and dialogue works unchanged. A tap anywhere
+  presses Space (confirm only, harmless in play); buttons dim during dialogue/menus/cutscenes.
+  Touch devices get a landscape view 216 px tall (`touchViewSize`), a rotate-the-phone overlay
+  in portrait and a web manifest (fullscreen, landscape).
 - Feedback round (2026-10-31, mid arc 2): specials root the caster (no moving while charging,
   casting or during a barrage; the direction keys still turn and aim); ki shots lost their lock-on
   (the barrage was seeking enemies); punch speed streaks start at the fist and trail back toward

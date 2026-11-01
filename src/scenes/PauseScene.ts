@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from '../config/constants';
 import { type StringKey, t } from '../i18n';
 import { input } from '../services/input';
+import { isTouchDevice } from '../services/touchControls';
 import { FONT_SHADOW } from '../ui/pixelFont';
 import { SCENES } from './keys';
 import { CollectionTab } from './pause/CollectionTab';
@@ -54,7 +55,12 @@ export class PauseScene extends Phaser.Scene {
     });
     this.add.rectangle(PANEL.x + 4, PANEL.y + 16, PANEL.width - 8, 1, 0x8aa0ff).setOrigin(0);
     this.add
-      .bitmapText(PANEL.right - 6, PANEL.bottom - 13, FONT_SHADOW, t('menu.hint'))
+      .bitmapText(
+        PANEL.right - 6,
+        PANEL.bottom - 13,
+        FONT_SHADOW,
+        t(isTouchDevice() ? 'menu.hintTouch' : 'menu.hint'),
+      )
       .setOrigin(1, 0)
       .setTint(0x9090a0);
     this.openTab(this.tabIndex);

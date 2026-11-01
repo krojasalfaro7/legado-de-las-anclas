@@ -5,6 +5,7 @@ import { audio } from '../services/audio';
 import { input } from '../services/input';
 import { session } from '../services/session';
 import { loadGame } from '../services/storage';
+import { isTouchDevice } from '../services/touchControls';
 import { MenuList } from '../ui/MenuList';
 import { FONT_SHADOW } from '../ui/pixelFont';
 import { SCENES } from './keys';
@@ -43,7 +44,12 @@ export class TitleScene extends Phaser.Scene {
     this.list = new MenuList(this, GAME_WIDTH / 2 - 50, 150, 100, 14);
     this.list.setItems(this.entries.map((e) => ({ label: labels[e] })));
     this.add
-      .bitmapText(GAME_WIDTH / 2, GAME_HEIGHT - 30, FONT_SHADOW, t('title.hint'))
+      .bitmapText(
+        GAME_WIDTH / 2,
+        GAME_HEIGHT - 30,
+        FONT_SHADOW,
+        t(isTouchDevice() ? 'title.hintTouch' : 'title.hint'),
+      )
       .setOrigin(0.5)
       .setTint(0xe0e8ff);
     this.add
